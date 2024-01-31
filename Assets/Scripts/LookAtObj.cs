@@ -10,7 +10,6 @@ public class LookAtObj : MonoBehaviour
     void Update()
     {
         if (trsLookAt == null) return;
-
         transform.LookAt(trsLookAt);
         //transform.LookAt(trsLookAt.position);
     }
