@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public enum Cams//미리 정의되어야만 하는 데이터
@@ -17,6 +18,22 @@ public class CameraManager : MonoBehaviour
     //private List<Camera> listCam = new List<Camera>();//직렬화를 하거나 공개, 인스펙터
     [SerializeField] List<Camera> listCam;
     [SerializeField] List<Button> listBtns;
+
+    private UnityAction _action = null;
+    public UnityAction Action { set => _action = value; }
+
+    [SerializeField] bool forTest = false;
+
+    public void AddAction(UnityAction Addaction)
+    {
+        _action += Addaction;
+    }
+
+    public void RemoveAction(UnityAction _removeAction)
+    {
+        _action -= _removeAction;
+    }
+
 
     private void Awake()
     {
@@ -56,6 +73,8 @@ public class CameraManager : MonoBehaviour
         {
             int num = iNum;
             listBtns[iNum].onClick.AddListener(() => switchCamera(num));
+            //람다식 -> 무명함수
+            //델리게이트 -> 대리자 혹은 나중에 실행될 예약기능
         }
         
         //listBtns[0].onClick.AddListener(()=> switchCamera(0));
@@ -81,6 +100,20 @@ public class CameraManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha4)) 
         { 
             switchCamera(3);
+        }
+
+        if (forTest ==true)
+        {
+            forTest = false;
+
+            if (_action == null)
+            {
+                Debug.Log("저는 아무런 액션도 가지고 있지 않습니다.");
+            }
+            else
+            {
+                _action.Invoke();
+            }
         }
     }
 
