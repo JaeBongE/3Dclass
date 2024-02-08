@@ -19,6 +19,9 @@ public class CharControllerPlayer : MonoBehaviour
     [SerializeField] private bool isGround = false;
     [SerializeField] private bool isJump = false;
 
+    [SerializeField] private GameObject cam3rd;
+    [SerializeField] private GameObject cam1st;
+
 
     void Awake()
     {
@@ -40,6 +43,8 @@ public class CharControllerPlayer : MonoBehaviour
         jump();
         checkGravitiy();
         checkSlope();
+
+        checkDetail();
     }
 
     private void checkMouseLock()
@@ -137,6 +142,20 @@ public class CharControllerPlayer : MonoBehaviour
             {
                 isSlope = false;
             }
+        }
+    }
+
+    private void checkDetail()
+    {
+        if (Input.GetMouseButton(1) && cam1st.activeSelf == false)// 0 왼쪽 1 오른쪽 0 휠
+        {
+            cam1st.SetActive(true);
+            cam3rd.SetActive(false);
+        }
+        else if (Input.GetMouseButton(1) == false && cam3rd.activeSelf == false)//누르지 않고 있을 때
+        {
+            cam1st.SetActive(false);
+            cam3rd.SetActive(true);
         }
     }
 }
