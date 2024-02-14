@@ -6,14 +6,32 @@ public class Gun : MonoBehaviour
 {
     [SerializeField] GameObject objHitHole; //ÇÁ¸®ÆÕ
     [SerializeField] Transform trsTarget;
-
+    [SerializeField] Light hitLight;
+    [SerializeField] Light muzzleLight;
+    Transform trsMuzzle;
     short shootCount;
+    LineRenderer lineRenderer;
 
+    private void Awake()
+    {
+        lineRenderer = GetComponent<LineRenderer>();
+        trsMuzzle = transform.GetChild(1);
+    }
+
+    private void Start()
+    {
+        beforeShooting();
+    }
 
     void Update()
     {
         lookTarget();
         shootTarget();
+
+        if (lineRenderer.enabled == true)
+        {
+            lineRenderer.SetPosition(0, trsMuzzle.position);
+        }
     }
 
     private void lookTarget()
@@ -41,5 +59,21 @@ public class Gun : MonoBehaviour
         {
             shootCount = 0;
         }
+
+        
+        lineRenderer.SetPosition(1, _hit.point);
+
+        hitLight.transform.position = _hit.point + _hit.normal * 0.1f;
+        hitLight.gameObject.SetActive(true);
+        muzzleLight.gameObject.SetActive(true);
+        lineRenderer.enabled = true;
+        Invoke("beforeShooting", 0.1f);
+    }
+
+    private void beforeShooting()
+    {
+        hitLight.gameObject.SetActive(false);
+        muzzleLight.gameObject.SetActive(false);
+        lineRenderer.enabled = false;
     }
 }
