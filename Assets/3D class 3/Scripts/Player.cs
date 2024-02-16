@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     private Vector3 vecDestination;
     private Vector3 startPosition;
     [SerializeField] float randomRadiusRange = 30f;
+    [SerializeField] bool selected = false;
 
     private float waitingTime;//도착 후에 잠깐 기다리는 시간
     [SerializeField] Vector2 vecWaitngMinMax;
@@ -27,11 +28,27 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        //1. 동적으로 플레이중에 여러분들의 알고리즘에 의해서 삭제
+        //UnitManager.Instance.RemoveUnit(this);
+
+        //2. 어떤 조건에 의해서 데이터가 삭제되어야 할때 ex) 에디터에서 플레이가 끝났을 때
+        if (UnitManager.Instance != null)//예외처리
+        {
+            UnitManager.Instance.RemoveUnit(this);
+        }
+    }
+
     private void Start()
     {
         //setNewPath();
         //setNewWaitTIme();
+        if (selected == false) return;
+
+        UnitManager.Instance.AddUnit(this);
     }
+
 
     void Update()
     {
@@ -108,5 +125,10 @@ public class Player : MonoBehaviour
         }
 
         return startPosition;
+    }
+
+    public void SetDestination(Vector3 _pos)
+    {
+        agent.SetDestination(_pos);
     }
 }
