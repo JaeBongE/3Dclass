@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -14,6 +15,16 @@ public class Player : MonoBehaviour
     private float waitingTime;//도착 후에 잠깐 기다리는 시간
     [SerializeField] Vector2 vecWaitngMinMax;
 
+    [Header("점프데이터")]
+    OffMeshLinkData linkData;
+    [SerializeField] float JumpSpeed = 0.0f;
+    private float JumpRatio = 0.0f;
+    private float JumpMaxHeight = 0.0f;
+    [SerializeField] float JumpHeight = 5f;
+    private bool setOffMesh = false;
+    private Vector3 offMeshStart;
+    private Vector3 offMeshEnd;
+
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -26,6 +37,10 @@ public class Player : MonoBehaviour
         {
             startPosition = transform.position;
         }
+
+        //NavMesh.RemoveAllNavMeshData();//네브매쉬를 삭제
+        //NavMeshSurface surface = GetComponent<NavMeshSurface>();
+        //surface.BuildNavMesh();
     }
 
     private void OnDestroy()
@@ -58,6 +73,42 @@ public class Player : MonoBehaviour
 
         //    setNewPath();
         //}
+
+        if (agent.isOnOffMeshLink == true)
+        {
+            doOffMesh();
+        }
+    }
+
+    private void doOffMesh()
+    {
+        if (setOffMesh == false)//점프하기전 설정
+        {
+            setOffMesh = true;
+            linkData = agent.currentOffMeshLinkData;
+
+            offMeshStart = transform.position;
+            offMeshEnd = linkData.endPos + new Vector3(0, agent.height * 0.5f, 0);
+
+            agent.isStopped = true;//에이전트 멈춤
+            JumpSpeed = Vector3.Distance(offMeshStart, offMeshEnd) / agent.speed;
+            //float distance = (offMeshStart - offMeshEnd).magnitude; vector3.distance와 동일한 기능을 함
+            JumpMaxHeight = (offMeshEnd - offMeshStart).y + JumpHeight;
+        }
+
+        JumpRatio += (Time.deltaTime / JumpSpeed);
+
+        Vector3 movePos = Vector3.Lerp(offMeshStart, offMeshEnd, JumpRatio);
+        movePos.y = offMeshStart.y + JumpMaxHeight * JumpRatio + -JumpHeight * Mathf.Pow(JumpRatio, 2);
+        transform.position = movePos;
+
+        if (JumpRatio >= 1.0f)//도착한 것
+        {
+            JumpRatio = 0.0f;
+            agent.CompleteOffMeshLink();
+            agent.isStopped = false;//다시 동작
+            setOffMesh = false;
+        }
     }
 
     private void setNewWaitTIme()
