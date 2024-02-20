@@ -25,6 +25,32 @@ public class Player : MonoBehaviour
     private Vector3 offMeshStart;
     private Vector3 offMeshEnd;
 
+    Material matUnit;//클릭되었는지 확인용 메테리얼
+
+    private bool select = false;
+    public bool Select
+    {
+        set
+        {
+            select = value;
+            if (matUnit != null)
+            {
+                if (select == true)
+                {
+                    matUnit.color = Color.green;
+                }
+                else
+                {
+                    matUnit.color = Color.white;
+                }
+            }
+        }
+        get
+        {
+            return select;
+        }
+    }
+
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -41,6 +67,10 @@ public class Player : MonoBehaviour
         //NavMesh.RemoveAllNavMeshData();//네브매쉬를 삭제
         //NavMeshSurface surface = GetComponent<NavMeshSurface>();
         //surface.BuildNavMesh();
+
+        MeshRenderer mr = GetComponent<MeshRenderer>();
+        matUnit = Instantiate(mr.material);
+        mr.material = matUnit;
     }
 
     private void OnDestroy()

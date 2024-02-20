@@ -40,7 +40,10 @@ public class UnitManager : MonoBehaviour
         for (int iNum = 0; iNum < count; iNum++)
         {
             Player unit = listPlayer[iNum];
-            unit.SetDestination(_pos);
+            if (unit.Select == true)
+            {
+                unit.SetDestination(_pos);
+            }
         }
 
         //혹은
@@ -49,6 +52,27 @@ public class UnitManager : MonoBehaviour
         //    unit.SetDestination(_pos);
         //}
     }
+
+    public void ClearAllSelectUnit()
+    {
+        int count = listPlayer.Count;
+        for (int iNum = 0; iNum < count; iNum++)
+        {
+            Player sc = listPlayer[iNum];
+            sc.Select = false;
+        }
+    }
     
-    
+    public void SelectUnit(Rect _rect)
+    {
+        int count = listPlayer.Count;
+        for (int iNum = 0; iNum < count; iNum++)
+        {
+            Player sc = listPlayer[iNum];
+            if (_rect.Contains(Camera.main.WorldToScreenPoint(sc.transform.position)) == true)//렉트 안에 들어가있는지 물어봄
+            {
+                sc.Select = true;
+            }
+        }
+    }
 }
