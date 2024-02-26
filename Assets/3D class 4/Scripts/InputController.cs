@@ -17,7 +17,10 @@ public class InputController : MonoBehaviour
 
     Dictionary<string, string> dicNameValue = new Dictionary<string, string>();
 
-    [SerializeField, Range(0.0f, 1.0f)] float distanceToGround; 
+    [SerializeField, Range(0.0f, 1.0f)] float distanceToGround;
+
+    private bool doChangeState = false;
+    private float mouseVertical = 0f;
 
     private void OnAnimatorIK(int layerIndex)
     {
@@ -76,6 +79,7 @@ public class InputController : MonoBehaviour
         moving();
         doDance();
         activeDanceInventory();
+        checkAim();
     }
 
     private void moving()
@@ -159,5 +163,92 @@ public class InputController : MonoBehaviour
         {
             anim.Play("Move");
         }
+    }
+
+    private void checkAim()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftControl) && doChangeState == false)
+        {
+            if (Cursor.lockState == CursorLockMode.None)
+            {
+                Cursor.lockState = CursorLockMode.Locked;//마우스 커서가 보이지 않아야 함
+                //layer weight를 1로
+                StartCoroutine(changeState(true));
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+                //layer weight를 0으로
+                StartCoroutine(changeState(false));
+            }
+        }
+
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            mouseVertical += Input.GetAxis("Mouse Y") * Time.deltaTime;
+            mouseVertical = Mathf.Clamp(mouseVertical, -1f, 1f);
+            anim.SetFloat("MouseVertical", mouseVertical);
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                //anim.Play("원하는 애니메이션 이름");
+            }
+        }
+
+    }
+
+    //private IEnumerator corFunction()
+    //{
+    //    //1
+    //    //2
+    //    yield return null;//다른 코루틴이 있으면 그 친구가 실행되도록 양보, 이 차례에서 대기 하고 다른 코루틴에게 차례를 넘겨줌
+    //    //3
+    //    //4
+
+    //}
+    
+    //private IEnumerator corFunction2()
+    //{
+    //    //1
+    //    //2
+    //    yield return null;
+    //    //3
+    //    //4
+    //}
+
+    IEnumerator changeState(bool _upper)
+    {
+        //yield return new WaitForSeconds(1.0f);//1초를 기다림
+
+        //yield return new WaitForEndOfFrame();//1frm을 넘겨줌
+
+        //while(true)
+        //{
+        //    yield return null;
+        //}
+
+        float ratio = 0f;
+        doChangeState = true;
+
+        if (_upper)
+        {
+            while(anim.GetLayerWeight(1) < 1.0f)
+            {
+                ratio += Time.deltaTime * 5f;
+                anim.SetLayerWeight(1, Mathf.Lerp(0f, 1f, ratio));//0에서 1까지 ratio로 올라감
+                yield return null;
+            }
+        }
+        else
+        {
+            while(anim.GetLayerWeight(1) > 0f)
+            {
+                ratio += Time.deltaTime * 5f;
+                anim.SetLayerWeight(1, Mathf.Lerp(1f, 0f, ratio));
+                yield return null;
+            }
+        }
+
+        doChangeState = false;
     }
 }
