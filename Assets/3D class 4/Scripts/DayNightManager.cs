@@ -53,11 +53,6 @@ public class DayNightManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-
-    }
-
     void Update()
     {
         timeOfday %= 24;//0 ~ 24 사이의 값만 저장됨(나머지만 저장)
